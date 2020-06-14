@@ -54,3 +54,10 @@ The config file is a simple json file, which expects the following keys:
                            # Telegram Bots on how to get one.
 }
 ```
+
+# Fork/clone recommendation:
+
+Run `git config filter.strip_ipynb.clean "python3 strip_ipynb.py"` after
+cloning to install a git filter to clean up the Jupyter Notebook so that
+the repo doesn't get cluttered with the notebook's outputs (especially
+the plots, which are rather large images).
