@@ -65,8 +65,8 @@ def create_plots(data, buffer):
     fig, axes = plt.subplots(ncols=2, figsize=(15, 8))
 
     for axis, column, legend in zip(axes, plot_columns, plot_legends):
-        data[column].plot(ax=axis, rot=-60)
-        axis.xaxis.set_major_locator(mdates.WeekdayLocator())
+        data[-30:][column].plot(ax=axis, rot=-60)
+        axis.xaxis.set_major_locator(mdates.DayLocator())
         axis.xaxis.set_major_formatter(FuncFormatter(fix_plt_date))
         axis.tick_params(axis='x', which='minor', bottom=False)
         axis.grid(linestyle=':', linewidth='0.5')
