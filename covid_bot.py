@@ -54,15 +54,23 @@ def set_last_timestamp(timestamp):
 
 
 def create_plots(data, buffer):
+    plot_columns = (['new_cases', 'new_cases_ave'], ['ratio', 'ratio_ave'])
+    plot_legends = (['New Cases',
+                     '7 day average'], ['Positive Test Ratio', '7 day average'])
+    rolling_period = 7
+
+    for (src, dst) in plot_columns:
+        data[dst] = data[src].rolling(rolling_period).mean()
+
     fig, axes = plt.subplots(ncols=2, figsize=(15, 8))
 
-    columns = ('new_cases', 'ratio')
-    for axis, column in zip(axes, columns):
-        data[-30:][column].plot(ax=axis, rot=-60)
-        axis.xaxis.set_major_locator(mdates.DayLocator())
+    for axis, column, legend in zip(axes, plot_columns, plot_legends):
+        data[column].plot(ax=axis, rot=-60)
+        axis.xaxis.set_major_locator(mdates.WeekdayLocator())
         axis.xaxis.set_major_formatter(FuncFormatter(fix_plt_date))
         axis.tick_params(axis='x', which='minor', bottom=False)
         axis.grid(linestyle=':', linewidth='0.5')
+        axis.legend(legend)
 
     plt.savefig(buffer, format='png', quality=100, dpi=300)
     buffer.seek(0)
@@ -81,12 +89,16 @@ def main():
         t = TelegramGateway(cfg['TELEGRAM_TOKEN'], cfg['TELEGRAM_CHAT_ID'])
         t.send_msg(f'COVID data was updated:\ndate{str(data[-1:])[4:]}')
 
+        # Do not report averages in table -- too wide
+        # for phone screens
+        summary_15_days = f'date{str(data[-15:])[4:]}'
+
         with io.BytesIO() as buffer:
             create_plots(data, buffer)
 
             t.send_img_bytes(buffer)
 
-        t.send_msg(f'date{str(data[-15:])[4:]}')
+        t.send_msg(summary_15_days)
 
 
 if __name__ == "__main__":
