@@ -14,7 +14,7 @@ from matplotlib.ticker import FuncFormatter
 from nys_soda import get_data
 
 CFG_FILE = 'config.json'
-STATE_FILE = '/tmp/last_covid_data.json'
+STATE_FILE = 'last_covid_data.json'
 
 
 class TelegramGateway:
