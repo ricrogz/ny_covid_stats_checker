@@ -28,7 +28,8 @@ def import_data(raw_data):
     data.index = pd.to_datetime(data.index)
     data['new_cases'] = pd.to_numeric(data['new_cases'])
     data['tests'] = pd.to_numeric(data['tests'])
-    data['ratio'] = (data['new_cases'] / data['tests']).replace(np.nan, 0.)
+    data['ratio'] = (100. * data['new_cases'] / data['tests']).replace(
+        np.nan, 0.)
     return data
 
 
