@@ -4,12 +4,10 @@ import io
 import os
 import json
 import telegram
-from datetime import date
 from datetime import datetime
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from matplotlib.ticker import FuncFormatter
 
 from nys_soda import get_data
 
@@ -30,14 +28,6 @@ class TelegramGateway:
 
     def send_img_bytes(self, img, chat=None):
         self.bot.send_photo(chat_id=chat if chat else self.chat_id, photo=img)
-
-
-origin_date = date(year=1970, month=1, day=1)
-
-
-def fix_plt_date(x, pos):
-    actual_date = origin_date + mdates.num2timedelta(x)
-    return actual_date.strftime('%Y-%m-%d')
 
 
 def get_last_timestamp():
@@ -68,8 +58,8 @@ def create_plots(data, buffer):
         data[-30:][column].plot(ax=axis, rot=-60)
         axis.xaxis.set_major_locator(mdates.WeekdayLocator())
         axis.xaxis.set_minor_locator(mdates.DayLocator())
-        axis.xaxis.set_major_formatter(FuncFormatter(fix_plt_date))
-        axis.xaxis.set_minor_formatter(FuncFormatter(fix_plt_date))
+        axis.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        axis.xaxis.set_minor_formatter(mdates.DateFormatter('%Y-%m-%d'))
         axis.grid(which='major', linestyle=':', linewidth='2')
         axis.grid(which='minor', linestyle=':', linewidth='0.5')
         axis.legend(legend)

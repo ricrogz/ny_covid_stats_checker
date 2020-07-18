@@ -236,6 +236,10 @@ def parse_repo(cfg):
         data = stat.getRow(tabla)
         tabla = tabla.append(data, ignore_index=True)
 
+    tabla.set_index('Date', inplace=True)
+    tabla.index = pd.DatetimeIndex(tabla.index)
+    tabla.index -= datetime.timedelta(days=1)
+
     return tabla
 
 
