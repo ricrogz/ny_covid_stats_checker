@@ -118,6 +118,7 @@ class DailyStats:
         date_time_str = date_time_str.replace('p.m.', 'pm')
         date_time_str = date_time_str.replace('a.m.', 'am')
         date_time_str = date_time_str.replace(' at ', ' ')
+        date_time_str = date_time_str.replace('Augus ', 'August ')
 
         exc = None
         for date_fmt in DATE_FORMATS:
