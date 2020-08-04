@@ -56,7 +56,7 @@ def create_plots(data, buffer):
 
     for axis, column, legend in zip(axes, plot_columns, plot_legends):
         data[-30:][column].plot(ax=axis, rot=-60)
-        axis.xaxis.set_major_locator(mdates.WeekdayLocator())
+        axis.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=mdates.MO))
         axis.xaxis.set_minor_locator(mdates.DayLocator())
         axis.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         axis.xaxis.set_minor_formatter(mdates.DateFormatter('%Y-%m-%d'))
