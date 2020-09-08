@@ -234,6 +234,8 @@ def parse_repo(cfg):
             last_row = tabla.tail(1)
             if stat.date.date() == last_row.iloc[0]['Date']:
                 tabla.drop(last_row.index, inplace=True)
+            elif stat.date.date() < last_row.iloc[0]['Date']:
+                continue
 
         data = stat.getRow(tabla)
         tabla = tabla.append(data, ignore_index=True)
