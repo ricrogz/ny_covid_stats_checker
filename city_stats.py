@@ -52,6 +52,7 @@ DATE_FORMATS = (
     '"%m/%d/%Y, %I:%M%p"',
 )
 SKIP_DATES = ('"Date, time"',)
+SKIP_LABELS = ('MEASURE',)
 
 
 class DailyStats:
@@ -73,7 +74,9 @@ class DailyStats:
                 msg += f'\nBlock was:\n{data_block}'
                 raise ValueError(msg)
 
-            if label in DATE_LABELS:
+            if label in SKIP_LABELS:
+                continue
+            elif label in DATE_LABELS:
                 self.date = self._parseDate(value)
                 if self.date is None:
                     return
@@ -206,7 +209,12 @@ def iter_data(cfg, repo):
         else:
             zip_data = read_committed_file(zip_file)
 
-        yield DailyStats(cfg['NEIGHBORHOOD_ZIP_CODES'], summary_data, zip_data)
+        try:
+            yield DailyStats(cfg['NEIGHBORHOOD_ZIP_CODES'], summary_data,
+                             zip_data)
+        except ValueError as e:
+            print(f"Error at commit {commit.hexsha}:\n\t{str(e)}")
+            raise
 
 
 def parse_repo(cfg):
