@@ -136,7 +136,12 @@ class DailyStats:
             except ValueError as e:
                 exc = e
             else:
-                return date.replace(year=2020)
+                if date.year == 1900:
+                    year = 2020
+                    if date.date() < datetime.date(1900, 3, 25):
+                        year += 1
+                    date = date.replace(year=year)
+                return date
         raise ValueError(f'Last exception: {exc}')
 
     def _parse_zip_data(self, zip_codes, zip_data):
