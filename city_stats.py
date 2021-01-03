@@ -24,6 +24,7 @@ DATE_LABELS = (
 CASES_LABELS = (
     'Cases:',
     'Case count',
+    'NYC_PROBABLE_CASE_COUNT',
     'NYC_CASE_COUNT',
 )
 HOSPITAL_LABELS = (
@@ -52,7 +53,11 @@ DATE_FORMATS = (
     '"%m/%d/%Y, %I:%M%p"',
 )
 SKIP_DATES = ('"Date, time"',)
-SKIP_LABELS = ('MEASURE',)
+SKIP_LABELS = (
+    'MEASURE',
+    'NYC_TOTAL_DEATH_COUNT',
+    'NYC_TOTAL_CASE_COUNT',
+)
 
 
 class DailyStats:
@@ -168,8 +173,12 @@ class DailyStats:
             last_row = [0] * 8
 
         ret = [self.date.date()]
-        for col, attr in enumerate(
-            ('cases', 'neighborhood', 'hospital', 'dead'), 1):
+        for col, attr in enumerate((
+                'cases',
+                'neighborhood',
+                'hospital',
+                'dead',
+        ), 1):
 
             current = getattr(self, attr)
             if current is None:
@@ -187,6 +196,8 @@ def clone_or_update_repo():
 
 
 def read_committed_file(file_object):
+    if file_object is None:
+        return None
     with io.BytesIO(file_object.data_stream.read()) as f:
         data = f.read().decode('utf-8').strip()
     if data.startswith('\ufeff'):
@@ -194,20 +205,26 @@ def read_committed_file(file_object):
     return data
 
 
+def get_commited_file(commit, fname):
+    for f in (f'totals/{fname}', fname):
+        try:
+            return commit.tree / f
+        except KeyError:
+            pass
+    return None
+
+
 def iter_data(cfg, repo):
     repo = git.Repo(repo)
-    commits = list(repo.iter_commits(paths=STAT_SUMMARY_FILE_NAME))
-
-    for commit in commits[::-1]:
-        summary_file = commit.tree / STAT_SUMMARY_FILE_NAME
+    for commit in repo.iter_commits('master', reverse=True):
+        summary_file = get_commited_file(commit, STAT_SUMMARY_FILE_NAME)
         summary_data = read_committed_file(summary_file)
 
-        try:
-            zip_file = commit.tree / ZIP_STAT_FILE_NAME
-        except KeyError:
-            zip_data = None
-        else:
-            zip_data = read_committed_file(zip_file)
+        if summary_data is None or '<<<<<<< HEAD' in summary_data:
+            continue
+
+        zip_file = get_commited_file(commit, ZIP_STAT_FILE_NAME)
+        zip_data = read_committed_file(zip_file)
 
         try:
             yield DailyStats(cfg['NEIGHBORHOOD_ZIP_CODES'], summary_data,
