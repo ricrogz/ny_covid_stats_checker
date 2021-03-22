@@ -147,10 +147,14 @@ class DailyStats:
     def _parse_zip_data(self, zip_codes, zip_data):
         area_codes = set(zip_codes)
 
-        for line in zip_data.split('\n'):
-            items = line.strip().split(',', 4)
+        data = zip_data.split('\n')
+        hdr_row = data[0].split(',')
+        count_col = hdr_row.index('COVID_CASE_COUNT')
+
+        for line in data:
+            items = line.strip().split(',')
             if items[0] in area_codes:
-                self._updateCounter('neighborhood', items[3])
+                self._updateCounter('neighborhood', items[count_col])
                 area_codes.remove(items[0])
                 if not area_codes:
                     return
