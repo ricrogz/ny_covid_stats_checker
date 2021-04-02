@@ -62,7 +62,7 @@ SKIP_LABELS = (
 
 class DailyStats:
 
-    def __init__(self, zip_codes, data_block, zip_block=None):
+    def __init__(self, zip_codes, data_block, zip_block, data_timestamp):
         self.date = None
         self.cases = None
         self.hospital = None
@@ -82,7 +82,7 @@ class DailyStats:
             if label in SKIP_LABELS:
                 continue
             elif label in DATE_LABELS:
-                self.date = self._parseDate(value)
+                self.date = self._parseDate(value, data_timestamp)
                 if self.date is None:
                     return
 
@@ -119,7 +119,7 @@ class DailyStats:
             return
         setattr(self, attr, current)
 
-    def _parseDate(self, date_time_str):
+    def _parseDate(self, date_time_str, data_timestamp):
         if date_time_str in SKIP_DATES:
             return
 
@@ -137,9 +137,10 @@ class DailyStats:
                 exc = e
             else:
                 if date.year == 1900:
-                    year = 2020
-                    if date.date() < datetime.date(1900, 3, 25):
-                        year += 1
+                    year = data_timestamp.year
+                    if date.date() == datetime.date(
+                            1900, 12, 31) and date.month < data_timestamp.month:
+                        year -= 1
                     date = date.replace(year=year)
                 return date
         raise ValueError(f'Last exception: {exc}')
@@ -226,6 +227,7 @@ def get_commited_file(commit, fname):
 def iter_data(cfg, repo):
     repo = git.Repo(repo)
     for commit in repo.iter_commits('master', reverse=True):
+
         summary_file = get_commited_file(commit, STAT_SUMMARY_FILE_NAME)
         summary_data = read_committed_file(summary_file)
 
@@ -237,7 +239,7 @@ def iter_data(cfg, repo):
 
         try:
             yield DailyStats(cfg['NEIGHBORHOOD_ZIP_CODES'], summary_data,
-                             zip_data)
+                             zip_data, commit.authored_datetime)
         except ValueError as e:
             print(f"Error at commit {commit.hexsha}:\n\t{str(e)}")
             raise
