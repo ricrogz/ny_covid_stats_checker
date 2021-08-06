@@ -47,12 +47,13 @@ DEAD_LABELS = (
 )
 DATE_FORMATS = (
     '%c',
+    '%B %d',
     '"%B %d, %I:%M %p"',
     '"%B %d, %I.%M %p"',
     '"%B %d, %I %p"',
     '"%m/%d/%Y, %I:%M%p"',
 )
-SKIP_DATES = ('"Date, time"',)
+SKIP_DATES = ('"Date, time"', )
 SKIP_LABELS = (
     'MEASURE',
     'NYC_TOTAL_DEATH_COUNT',
@@ -61,7 +62,6 @@ SKIP_LABELS = (
 
 
 class DailyStats:
-
     def __init__(self, zip_codes, data_block, zip_block, data_timestamp):
         self.date = None
         self.cases = None
@@ -128,6 +128,7 @@ class DailyStats:
         date_time_str = date_time_str.replace(' at ', ' ')
         date_time_str = date_time_str.replace('Augus ', 'August ')
         date_time_str = date_time_str.replace('August10', 'August 10')
+        date_time_str = date_time_str.replace('August  4', 'August 4')
 
         exc = None
         for date_fmt in DATE_FORMATS:
@@ -139,7 +140,8 @@ class DailyStats:
                 if date.year == 1900:
                     year = data_timestamp.year
                     if date.date() == datetime.date(
-                            1900, 12, 31) and date.month < data_timestamp.month:
+                            1900, 12,
+                            31) and date.month < data_timestamp.month:
                         year -= 1
                     date = date.replace(year=year)
                 return date
