@@ -52,6 +52,7 @@ DATE_FORMATS = (
     '"%B %d, %I.%M %p"',
     '"%B %d, %I %p"',
     '"%m/%d/%Y, %I:%M%p"',
+    '"%B %d, %Y"',
 )
 SKIP_DATES = ('"Date, time"', )
 SKIP_LABELS = (
