@@ -19,7 +19,7 @@ def pull_covid_data(token=None):
         where="county IN ('Bronx', 'Queens', 'Kings', 'New York', 'Richmond')",
         group="test_date",
         order="test_date ASC",
-        limit=1000)
+        limit=10000)
 
 
 def import_data(raw_data):
